@@ -51,44 +51,14 @@
         </div>
 
         {% if user.is_authenticated %}
-            <!-- Add a todo row -->
             <div class="container">
                 <div class="row">
                     <div class="offset-md-2 col-lg-9">
-                     
-                        <form method="post" action="{% url 'todos:add' %}">
-                            {% csrf_token %}
-                            <div class="card">
-                                <div class="card-body">
-                                    <h3 class="text-center">Add New Task</h3>
-                                    <div class="form-row">
-                                        <div class="col-md-6">
-                                            <label for="title" class="form-label">Title:</label>
-                                            <input type="text" class="form-control" name="title" id="title" placeholder="Write To Do" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="description" class="form-label">Description:</label>
-                                            <input type="text" class="form-control" name="description" id="description" placeholder="Description">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="deadline" class="form-label">Deadline:</label>
-                                            <input type="datetime-local" class="form-control" name="deadline" id="deadline" placeholder="Deadline" required>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label for="notification_time" class="form-label">Notification Time:</label>
-                                            <input type="datetime-local" class="form-control" name="notification_time" id="notification_time" placeholder="Notification Time" required>
-                                        </div>
-                                        <div class="col-md-12 mt-2">
-                                            <button type="submit" name="submit" class="btn btn-outline-primary btn-add">Add</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                        <a href="{% url 'todos:add' %}" class="btn btn-outline-primary btn-add">Add New Task</a>
+                        <!-- Other content remains unchanged -->
                     </div>
                 </div>
             </div>
-            <hr />
 
             <!-- todo list row -->
             <div class="container">
