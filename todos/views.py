@@ -14,13 +14,15 @@ class IndexView(generic.ListView):
         # return Todo.objects.order_by('-created_at')
         return Todo.objects.filter(user=self.request.user).order_by('-created_at')
 
-def add(request):
-    title = request.POST['title']
-    user=request.user
-    # Todo.objects.create(title=title)
-    Todo.objects.create(title=title,user=user)
+# def add(request):
+#     title = request.POST['title']
+#     user=request.user
+#     # Todo.objects.create(title=title)
+#     Todo.objects.create(title=title,user=user)
 
-    return redirect('todos:index')
+#     return redirect('todos:index')
+    
+
 
 def delete(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id)
@@ -28,13 +30,58 @@ def delete(request, todo_id):
 
     return redirect('todos:index')
 
+# def update(request, todo_id):
+#     todo = get_object_or_404(Todo, pk=todo_id)
+#     isCompleted = request.POST.get('isCompleted', False)
+#     if isCompleted == 'on':
+#         isCompleted = True
+    
+#     todo.isCompleted = isCompleted
+
+#     todo.save()
+#     return redirect('todos:index')
+
+@login_required
+def add(request):
+    if request.method == 'POST':
+        title = request.POST['title']
+        description = request.POST['description']
+        deadline = request.POST.get('deadline', None)
+        notification_time = request.POST.get('notification_time', None)
+        user = request.user
+
+        Todo.objects.create(
+            title=title,
+            description=description,
+            deadline=deadline,
+            notification_time=notification_time,
+            user=user
+        )
+
+    return redirect('todos:index')
+
+@login_required
 def update(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id)
-    isCompleted = request.POST.get('isCompleted', False)
-    if isCompleted == 'on':
-        isCompleted = True
-    
-    todo.isCompleted = isCompleted
 
-    todo.save()
+    if request.method == 'POST':
+        title = request.POST['title']
+        description = request.POST['description']
+        deadline = request.POST.get('deadline', None)
+        notification_time = request.POST.get('notification_time', None)
+        isCompleted = request.POST.get('isCompleted', False)
+
+        if isCompleted == 'on':
+            isCompleted = True
+        else:
+            isCompleted = False
+
+        todo.title = title
+        todo.description = description
+        todo.deadline = deadline
+        todo.notification_time = notification_time
+        todo.isCompleted = isCompleted
+
+        todo.save()
+
     return redirect('todos:index')
