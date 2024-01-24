@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="offset-md-2 col-lg-9">
                  
-                    <form method="post" action="{% url 'todos:add' %}">
+                    <form method="post" action="{% url 'todos:add' %}" onsubmit="return validateForm()">
                         {% csrf_token %}
                         <div class="card mt-4">
                             <div class="card-body">
@@ -41,4 +41,36 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function validateForm() {
+            var deadlineInputString = document.getElementById('deadline').value;
+            var notificationTimeInputString = document.getElementById('notification_time').value;
+
+            // Parse the date strings to create Date objects
+            var deadlineInput = new Date(deadlineInputString).getTime();
+            var notificationTimeInput = new Date(notificationTimeInputString).getTime();
+            var now = new Date().getTime();
+            console.log(now);
+            console.log(deadlineInput);
+            console.log(notificationTimeInput);
+
+            if (deadlineInput < now ) {
+                alert('Deadline Time cannot be in the past.');
+                return false;
+            }
+
+            if ( notificationTimeInput <now ) {
+                alert('notificationTime Time cannot be in the past.');
+                return false;
+            }
+
+            if (deadlineInput < notificationTimeInput  ) {
+                alert('notificationTime Time cannot be greter than the past.');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 {% endblock %}

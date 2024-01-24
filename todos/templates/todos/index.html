@@ -35,11 +35,6 @@
         }
     </style>
      <script>
-        // document.addEventListener("DOMContentLoaded", function () {
-        //     {% for todo in todo_list %}
-        //         updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
-        //     {% endfor %}
-        // });
 
         function updateRemainingTime(todoId, deadline) {
             const remainingTimeSpan = document.getElementById("remaining-time-" + todoId);
@@ -99,7 +94,8 @@
                         <div class="col-md-6 mb-3">
                             <div class="card {% if todo.isCompleted %} todo-complete {% endif %}">
                                 <div class="card-body">
-                                    <form method="post" action="{% url 'todos:update' todo.id %}">
+                                   
+                                    <form method="post" action="{% url 'todos:update' todo.id %}"  onsubmit="return validateForm()">
                                         {% csrf_token %}
                                         <div class="form-row">
                                             <div class="col-md-6" style="color: crimson; font-weight: bold;"> {{ todo.title }}</div>
@@ -157,6 +153,39 @@
                     {% endfor %}
                 </div>
             </div>
+            <script>
+                function validateForm() {
+                    var deadlineInputString = document.getElementById('deadline').value;
+                    var notificationTimeInputString = document.getElementById('notification_time').value;
+                    console.log("deadlineInputString",deadlineInputString);
+                    console.log("notificationTimeInputString",notificationTimeInputString);
+        
+                    // Parse the date strings to create Date objects
+                    var deadlineInput = new Date(deadlineInputString).getTime();
+                    var notificationTimeInput = new Date(notificationTimeInputString).getTime();
+                    var now = new Date().getTime();
+                    console.log("cuurent time",now);
+                    // console.log("deadlineInput",deadlineInput);
+                    // console.log("notificationTimeInput",notificationTimeInput);
+        
+                    if (deadlineInput < now ) {
+                        alert('Deadline Time cannot be in the past.');
+                        return false;
+                    }
+        
+                    if ( notificationTimeInput <now ) {
+                        alert('notificationTime Time cannot be in the past.');
+                        return false;
+                    }
+        
+                    if (deadlineInput < notificationTimeInput  ) {
+                        alert('notificationTime Time cannot be greter than the past.');
+                        return false;
+                    }
+        
+                    return true;
+                }
+                </script>  
         {% endif %}
     </div>
 {% endblock %}
