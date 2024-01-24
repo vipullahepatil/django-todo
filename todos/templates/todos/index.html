@@ -18,25 +18,39 @@
     </div>
   </div>
 
-  <!-- Add a todo row -->
-  <div class="row">
-    <div class="offset-md-2 col-lg-9">
-      <form method="post" action="{% url 'todos:add' %}">
-        {% csrf_token %}
-        <div class="form-row">
-          <div class="col-md-6">
-            <input type="text" class="form-control" name="title" placeholder="Do laundry" required>
+  {% if user.is_authenticated %}
+    <!-- Add a todo row -->
+    <div class="row">
+      <div class="offset-md-2 col-lg-9">
+        <!-- <form method="post" action="{% url 'todos:add' %}">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="col-md-6">
+              <input type="text" class="form-control" name="title" placeholder="Write To Do" required>
+            </div>
+            <div class="col-md-6">
+              <button type="submit" name="submit" class="btn btn-outline-primary">
+                Add
+              </button>
+            </div>
           </div>
-          <div class="col-md-6">
-            <button type="submit" name="submit" class="btn btn-outline-primary">
-              Add
-            </button>
+        </form> -->
+        <form method="post" action="{% url 'todos:add' %}">
+          {% csrf_token %}
+          <div class="form-row">
+              <div class="col-md-6">
+                  <input type="text" class="form-control" name="title" placeholder="Write To Do" required>
+              </div>
+              <div class="col-md-6">
+                  <input type="hidden" name="user" value="{{ user.id }}">
+                  <button type="submit" name="submit" class="btn btn-outline-primary">Add</button>
+              </div>
           </div>
-        </div>
       </form>
+      </div>
     </div>
-  </div>
-  <hr />
+    <hr />
+  {% endif %}
 
   <!-- todo list row -->
   <div class="row">
@@ -59,6 +73,28 @@
       </div>
     </div>
   </div>
+
+  <!-- {% if not user.is_authenticated %} -->
+    <!-- Display login form for non-logged-in user -->
+    <!-- <div class="row">
+      <div class="offset-md-2 col-lg-9">
+        <form method="post" action="{% url 'todos:login' %}">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="col-md-6">
+              <input type="text" class="form-control" name="username" placeholder="Username" required>
+            </div>
+            <div class="col-md-6">
+              <input type="password" class="form-control" name="password" placeholder="Password" required>
+            </div>
+            <div class="col-md-6 mt-2">
+              <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %} -->
 </div>
 
 {% endblock %}
