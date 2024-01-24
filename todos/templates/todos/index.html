@@ -17,89 +17,125 @@
       </div>
     </div>
   </div>
-
   {% if user.is_authenticated %}
-    <!-- Add a todo row -->
+  <!-- Add a todo row -->
+  <style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        margin-top: 20px;
+    }
+
+    .card {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .btn-add {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container">
     <div class="row">
-      <div class="offset-md-2 col-lg-9">
-        <form method="post" action="{% url 'todos:add' %}">
-          {% csrf_token %}
-          <div class="form-row">
-              <div class="col-md-6">
-                  <label for="title">Title:</label>
-                  <input type="text" class="form-control" name="title" id="title" placeholder="Write To Do" required>
-              </div>
-              <div class="col-md-6">
-                  <label for="description">Description:</label>
-                  <input type="text" class="form-control" name="description" id="description" placeholder="Description">
-              </div>
-              <div class="col-md-6">
-                  <label for="deadline">Deadline:</label>
-                  <input type="datetime-local" class="form-control" name="deadline" id="deadline" placeholder="Deadline">
-              </div>
-              <div class="col-md-6">
-                  <label for="notification_time">Notification Time:</label>
-                  <input type="datetime-local" class="form-control" name="notification_time" id="notification_time"
-                      placeholder="Notification Time">
-              </div>
-              <div class="col-md-12 mt-2">
-                  <button type="submit" name="submit" class="btn btn-outline-primary">Add</button>
-              </div>
-          </div>
-        </form>
-      
-      </div>
+        <div class="offset-md-2 col-lg-9">
+            <form method="post" action="{% url 'todos:add' %}">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <label for="title" class="form-label">Title:</label>
+                                <input type="text" class="form-control" name="title" id="title" placeholder="Write To Do" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="description" class="form-label">Description:</label>
+                                <input type="text" class="form-control" name="description" id="description" placeholder="Description">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="deadline" class="form-label">Deadline:</label>
+                                <input type="datetime-local" class="form-control" name="deadline" id="deadline" placeholder="Deadline" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="notification_time" class="form-label">Notification Time:</label>
+                                <input type="datetime-local" class="form-control" name="notification_time" id="notification_time" placeholder="Notification Time" required>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <button type="submit" name="submit" class="btn btn-outline-primary btn-add">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-    <hr />
-  {% endif %}
+</div>
+<hr /><hr /> 
+
 
   <!-- todo list row -->
-  <div class="row">
-    <div class="offset-md-2 col-lg-6">
-      <div class="list-group">
-        {% for todo in todo_list %}
-        <div class="list-group-item {% if todo.isCompleted %} todo-complete {% endif %}">
-          <form style="display: inline;" method="post" action="{% url 'todos:update' todo.id %}">
-            {% csrf_token %}
-            <div class="form-row">
+
+  <div class="container">
+    <div class="row">
+      {% for todo in todo_list %}
+      <div class="col-md-6 mb-3">
+        <div class="card {% if todo.isCompleted %} todo-complete {% endif %}">
+          <div class="card-body">
+            <form method="post" action="{% url 'todos:update' todo.id %}">
+              {% csrf_token %}
+              <div class="form-row">
                 <div class="col-md-6" style="color: crimson;"> {{ todo.title }}</div>
                 <div class="col-md-6">
-                    <label for="isCompleted">Completed:</label>
-                    <input type="checkbox" name="isCompleted" onchange="this.form.submit()" {% if todo.isCompleted %} checked {% endif %}
-                        class="todo-status-checkbox" title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
+                  <label for="isCompleted">Completed:</label>
+                  <input type="checkbox" name="isCompleted" {% if todo.isCompleted %} checked {% endif %}
+                    class="todo-status-checkbox"
+                    title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
                 </div>
-               
+
                 <div class="col-md-6">
-                    <label for="title">Title:</label>
-                    <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}">
-                </div>
-                <div class="col-md-6">
-                    <label for="description">Description:</label>
-                    <input type="text" class="form-control" name="description" id="description" value="{{ todo.description }}">
+                  <label for="title">Title:</label>
+                  <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="deadline">Deadline:</label>
-                    <input type="datetime-local" class="form-control" name="deadline" id="deadline"
-                        value="{% if todo.deadline %}{{ todo.deadline|date:'Y-m-d\TH:i' }}{% endif %}">
+                  <label for="description">Description:</label>
+                  <input type="text" class="form-control" name="description" id="description"
+                    value="{{ todo.description }}">
                 </div>
                 <div class="col-md-6">
-                    <label for="notification_time">Notification Time:</label>
-                    <input type="datetime-local" class="form-control" name="notification_time" id="notification_time"
-                        value="{% if todo.notification_time %}{{ todo.notification_time|date:'Y-m-d\TH:i' }}{% endif %}">
+                  <label for="deadline">Deadline:</label>
+                  <input type="datetime-local" class="form-control" name="deadline" id="deadline"
+                    value="{% if todo.deadline %}{{ todo.deadline|date:'Y-m-d\TH:i' }}{% endif %}" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="notification_time">Notification Time:</label>
+                  <input type="datetime-local" class="form-control" name="notification_time" id="notification_time"
+                    value="{% if todo.notification_time %}{{ todo.notification_time|date:'Y-m-d\TH:i' }}{% endif %}"
+                    required>
                 </div>
                 <div class="col-md-6 mt-2">
                   <button type="submit" class="btn btn-outline-primary">Update</button>
                 </div>
-            </div>
-          </form>
-          <a href="{% url 'todos:delete' todo.id %}" title="Delete">
-            <i class="far fa-trash-alt"></i>
-          </a>
+              </div>
+            </form>
+            <a href="{% url 'todos:delete' todo.id %}" title="Delete">
+              <i class="far fa-trash-alt"></i>
+            </a>
+          </div>
         </div>
-        {% endfor %}
       </div>
+      {% endfor %}
     </div>
   </div>
+  {% endif %}
+
 </div>
 
 {% endblock %}
