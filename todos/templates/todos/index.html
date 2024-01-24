@@ -34,6 +34,38 @@
             background-color: #d4edda; /* Change this color as per your preference */
         }
     </style>
+     <script>
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     {% for todo in todo_list %}
+        //         updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
+        //     {% endfor %}
+        // });
+
+        function updateRemainingTime(todoId, deadline) {
+            const remainingTimeSpan = document.getElementById("remaining-time-" + todoId);
+
+            function update() {
+                const now = new Date();
+                const deadlineDate = new Date(deadline);
+                const difference = deadlineDate - now;
+
+                if (difference > 0) {
+                    const seconds = Math.floor(difference / 1000) % 60;
+                    const minutes = Math.floor(difference / (1000 * 60)) % 60;
+                    const hours = Math.floor(difference / (1000 * 60 * 60)) % 24;
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+
+                    remainingTimeSpan.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                } else {
+                    remainingTimeSpan.innerText = "Expired";
+                }
+            }
+
+            // Update the remaining time every second
+            update();
+            setInterval(update, 1000);
+        }
+    </script>
 
     <div class="container">
 
@@ -101,6 +133,19 @@
                                             <div class="col-md-6 mt-2">
                                                 <button type="submit" class="btn btn-outline-primary">Update</button>
                                             </div>
+                                            <div class="col-md-12 mt-2">
+                                                {% if not todo.isCompleted %}
+                                                    Remaining Time: <span id="remaining-time-{{ todo.id }}"></span>
+                                                    <script>
+                                                        document.addEventListener("DOMContentLoaded", function () {
+                                                            updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
+                                                        });
+                                                    </script>
+                                                {% else %}
+                                                    Task Done
+                                                {% endif %}
+                                            </div>
+                                        
                                         </div>
                                     </form>
                                     <a href="{% url 'todos:delete' todo.id %}" title="Delete">
