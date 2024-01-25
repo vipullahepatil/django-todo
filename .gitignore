@@ -57,3 +57,5 @@ docs/_build/
 target/
 
 .DS_Store
+
+/home/vipul/VipulPythonPractice/djangoprojects/new2/django-todo/todoApp/settings.PyInstaller
