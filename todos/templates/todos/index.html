@@ -29,21 +29,25 @@
         margin-top: 20px;
     }
 
-    /* Style for completed todos */
     .todo-complete {
         background-color: #d4edda;
-        /* Change this color as per your preference */
     }
 </style>
-<script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    function updateRemainingTime(todoId, deadline) {
+<script>
+    function updateRemainingTime(todoId, deadline, notificationTime) {
         const remainingTimeSpan = document.getElementById("remaining-time-" + todoId);
 
         function update() {
             const now = new Date();
             const deadlineDate = new Date(deadline);
+            const notificationDate = new Date(notificationTime);
             const difference = deadlineDate - now;
+            const noti = notificationDate - now
+            if (noti < 1000 && noti >= 0) {
+                sendNotificationEmail(todoId);
+            }
 
             if (difference > 0) {
                 const seconds = Math.floor(difference / 1000) % 60;
@@ -56,16 +60,20 @@
                 remainingTimeSpan.innerText = "Expired";
             }
         }
-
-        // Update the remaining time every second
         update();
         setInterval(update, 1000);
+    }
+
+    function sendNotificationEmail(todoId) {
+
+        $.get(`send-notification-email/${todoId}/`, function (data) {
+            console.log(data);
+        });
     }
 </script>
 
 <div class="container">
 
-    <!-- title row -->
     <div class="row" style="margin-top: 20px;">
         <div class="offset-md-2 col-lg-9 text-center">
             <div class="page-header">
@@ -80,7 +88,6 @@
     <div class="row">
         <div class="offset-md-2 col-lg-9">
             <a href="{% url 'todos:add' %}" class="btn btn-outline-primary btn-add">Add New Task</a>
-            <!-- Other content remains unchanged -->
         </div>
     </div>
     <div class="row">
@@ -93,16 +100,17 @@
                         <div class="col-md-6">
                             <label for="isCompleted">Completed:</label>
                             {% if todo.isCompleted %}
-                                <i class="fas fa-check-circle text-primary"></i>
+                            <i class="fas fa-check-circle text-primary"></i>
                             {% else %}
-                                <i class="far fa-circle"></i>
+                            <i class="far fa-circle"></i>
                             {% endif %}
                         </div>
-                        
-    
+
+
                         <div class="col-md-6">
                             <label for="title">Title:</label>
-                            <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}" readonly>
+                            <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}"
+                                readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="description">Description:</label>
@@ -111,7 +119,8 @@
                         </div>
                         <div class="col-md-6">
                             <label for="deadline">Deadline:</label>
-                            <input type="datetime-local" class="form-control" name="deadline" id="deadline-{{ todo.id }}"
+                            <input type="datetime-local" class="form-control" name="deadline"
+                                id="deadline-{{ todo.id }}"
                                 value="{% if todo.deadline %}{{ todo.deadline|date:'Y-m-d\TH:i' }}{% endif %}" readonly>
                         </div>
                         <div class="col-md-6">
@@ -129,7 +138,7 @@
                             Remaining Time: <span id="remaining-time-{{ todo.id }}"></span>
                             <script>
                                 document.addEventListener("DOMContentLoaded", function () {
-                                    updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
+                                    updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}", "{{ todo.notification_time|date:'Y-m-d\TH:i' }}");
                                 });
                             </script>
                             {% else %}
@@ -145,7 +154,7 @@
         </div>
         {% endfor %}
     </div>
-    
+
     {% endif %}
 </div>
 

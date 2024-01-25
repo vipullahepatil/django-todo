@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:todo_id>/delete', views.delete, name='delete'),
     path('update/<int:todo_id>/', views.update, name='update'),
     path('add/', views.add, name='add'),
+    path('send-notification-email/<int:todo_id>/', views.send_notification_email, name='send_notification_email'),
 ]
