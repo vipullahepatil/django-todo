@@ -56,9 +56,9 @@ def update(request, todo_id):
         todo.isCompleted = isCompleted
 
         todo.save()
+        return redirect('todos:index')
 
-    return redirect('todos:index')
-
+    return render(request, 'todos/update.html', {'todo': todo})
 
 def delete(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id)

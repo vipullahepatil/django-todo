@@ -1,191 +1,230 @@
 {% extends 'todos/base.html' %}
 
 {% block title %}
-    <title>Todo list</title>
+<title>Todo list</title>
 {% endblock %}
 
 {% block content %}
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
 
-        .container {
-            margin-top: 20px;
-        }
+    .container {
+        margin-top: 20px;
+    }
 
-        .card {
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
+    .card {
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
 
-        .form-label {
-            font-weight: bold;
-            margin-top: 10px;
-        }
+    .form-label {
+        font-weight: bold;
+        margin-top: 10px;
+    }
 
-        .btn-add {
-            margin-top: 20px;
-        }
+    .btn-add {
+        margin-top: 20px;
+    }
 
-        /* Style for completed todos */
-        .todo-complete {
-            background-color: #d4edda; /* Change this color as per your preference */
-        }
-    </style>
-     <script>
+    /* Style for completed todos */
+    .todo-complete {
+        background-color: #d4edda;
+        /* Change this color as per your preference */
+    }
+</style>
+<script>
 
-        function updateRemainingTime(todoId, deadline) {
-            const remainingTimeSpan = document.getElementById("remaining-time-" + todoId);
+    function updateRemainingTime(todoId, deadline) {
+        const remainingTimeSpan = document.getElementById("remaining-time-" + todoId);
 
-            function update() {
-                const now = new Date();
-                const deadlineDate = new Date(deadline);
-                const difference = deadlineDate - now;
+        function update() {
+            const now = new Date();
+            const deadlineDate = new Date(deadline);
+            const difference = deadlineDate - now;
 
-                if (difference > 0) {
-                    const seconds = Math.floor(difference / 1000) % 60;
-                    const minutes = Math.floor(difference / (1000 * 60)) % 60;
-                    const hours = Math.floor(difference / (1000 * 60 * 60)) % 24;
-                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            if (difference > 0) {
+                const seconds = Math.floor(difference / 1000) % 60;
+                const minutes = Math.floor(difference / (1000 * 60)) % 60;
+                const hours = Math.floor(difference / (1000 * 60 * 60)) % 24;
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
 
-                    remainingTimeSpan.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                } else {
-                    remainingTimeSpan.innerText = "Expired";
-                }
+                remainingTimeSpan.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                remainingTimeSpan.innerText = "Expired";
             }
-
-            // Update the remaining time every second
-            update();
-            setInterval(update, 1000);
         }
-    </script>
 
-    <div class="container">
+        // Update the remaining time every second
+        update();
+        setInterval(update, 1000);
+    }
+</script>
 
-        <!-- title row -->
-        <div class="container">
-            <div class="row" style="margin-top: 20px;">
-                <div class="offset-md-2 col-lg-9 text-center">
-                    <div class="page-header">
-                        <h1 style="font-size: 36px; color: #007bff;">
-                            Todo List
-                        </h1>
-                    </div>
+<div class="container">
+
+    <!-- title row -->
+    <div class="row" style="margin-top: 20px;">
+        <div class="offset-md-2 col-lg-9 text-center">
+            <div class="page-header">
+                <h1 style="font-size: 36px; color: #007bff;">
+                    Todo List
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="row">
+        <div class="offset-md-2 col-lg-9">
+            <a href="{% url 'todos:add' %}" class="btn btn-outline-primary btn-add">Add New Task</a>
+            <!-- Other content remains unchanged -->
+        </div>
+    </div>
+
+    <!-- todo list row -->
+    <!-- <div class="row">
+        {% for todo in todo_list %}
+        <div class="col-md-6 mb-3">
+            <div class="card {% if todo.isCompleted %} todo-complete {% endif %}">
+                <div class="card-body">
+
+                    <form method="post" action="{% url 'todos:update' todo.id %}"
+                        onsubmit="return validateAndUpdate('{{ todo.id }}')">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="col-md-6" style="color: crimson; font-weight: bold;"> {{ todo.title }}</div>
+                            <div class="col-md-6">
+                                <label for="isCompleted">Completed:</label>
+                                <input type="checkbox" name="isCompleted" {% if todo.isCompleted %} checked {% endif %}
+                                    class="todo-status-checkbox"
+                                    title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="title">Title:</label>
+                                <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="description">Description:</label>
+                                <input type="text" class="form-control" name="description" id="description"
+                                    value="{{ todo.description }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="deadline">Deadline:</label>
+                                <input type="datetime-local" class="form-control" name="deadline"
+                                    id="deadline-{{ todo.id }}"
+                                    value="{% if todo.deadline %}{{ todo.deadline|date:'Y-m-d\TH:i' }}{% endif %}"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="notification_time">Notification Time:</label>
+                                <input type="datetime-local" class="form-control" name="notification_time"
+                                    id="notification_time-{{ todo.id }}"
+                                    value="{% if todo.notification_time %}{{ todo.notification_time|date:'Y-m-d\TH:i' }}{% endif %}"
+                                    required>
+                            </div>
+                            <div class="col-md-6 mt-2">
+                                <button type="submit" class="btn btn-outline-primary"
+                                    onclick="validateAndUpdate('{{ todo.id }}')">Update</button>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                {% if not todo.isCompleted %}
+                                Remaining Time: <span id="remaining-time-{{ todo.id }}"></span>
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
+                                    });
+                                </script>
+                                {% else %}
+                                Task Done
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                    <a href="{% url 'todos:delete' todo.id %}" title="Delete">
+                        <i class="far fa-trash-alt"></i>
+                    </a>
                 </div>
             </div>
         </div>
+        {% endfor %}
+    </div> -->
 
-        {% if user.is_authenticated %}
-            <div class="container">
-                <div class="row">
-                    <div class="offset-md-2 col-lg-9">
-                        <a href="{% url 'todos:add' %}" class="btn btn-outline-primary btn-add">Add New Task</a>
-                        <!-- Other content remains unchanged -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- todo list row -->
-            <div class="container">
-                <div class="row">
-                    {% for todo in todo_list %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card {% if todo.isCompleted %} todo-complete {% endif %}">
-                                <div class="card-body">
-                                   
-                                    <form method="post" action="{% url 'todos:update' todo.id %}"  onsubmit="return validateForm()">
-                                        {% csrf_token %}
-                                        <div class="form-row">
-                                            <div class="col-md-6" style="color: crimson; font-weight: bold;"> {{ todo.title }}</div>
-                                            <div class="col-md-6">
-                                                <label for="isCompleted">Completed:</label>
-                                                <input type="checkbox" name="isCompleted" {% if todo.isCompleted %} checked {% endif %}
-                                                    class="todo-status-checkbox"
-                                                    title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}">
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <label for="title">Title:</label>
-                                                <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="description">Description:</label>
-                                                <input type="text" class="form-control" name="description" id="description"
-                                                    value="{{ todo.description }}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="deadline">Deadline:</label>
-                                                <input type="datetime-local" class="form-control" name="deadline" id="deadline"
-                                                    value="{% if todo.deadline %}{{ todo.deadline|date:'Y-m-d\TH:i' }}{% endif %}" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="notification_time">Notification Time:</label>
-                                                <input type="datetime-local" class="form-control" name="notification_time" id="notification_time"
-                                                    value="{% if todo.notification_time %}{{ todo.notification_time|date:'Y-m-d\TH:i' }}{% endif %}"
-                                                    required>
-                                            </div>
-                                            <div class="col-md-6 mt-2">
-                                                <button type="submit" class="btn btn-outline-primary">Update</button>
-                                            </div>
-                                            <div class="col-md-12 mt-2">
-                                                {% if not todo.isCompleted %}
-                                                    Remaining Time: <span id="remaining-time-{{ todo.id }}"></span>
-                                                    <script>
-                                                        document.addEventListener("DOMContentLoaded", function () {
-                                                            updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
-                                                        });
-                                                    </script>
-                                                {% else %}
-                                                    Task Done
-                                                {% endif %}
-                                            </div>
-                                        
-                                        </div>
-                                    </form>
-                                    <a href="{% url 'todos:delete' todo.id %}" title="Delete">
-                                        <i class="far fa-trash-alt"></i>
-                                    </a>
-                                </div>
-                            </div>
+    <div class="row">
+        {% for todo in todo_list %}
+        <div class="col-md-6 mb-3">
+            <div class="card {% if todo.isCompleted %} todo-complete {% endif %}">
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="col-md-6" style="color: crimson; font-weight: bold;"> {{ todo.title }}</div>
+                        <!-- <div class="col-md-6">
+                            <label for="isCompleted">Completed:</label>
+                            <input type="checkbox" name="isCompleted" {% if todo.isCompleted %} checked {% endif %}
+                                class="todo-status-checkbox"
+                                title="{% if not todo.isCompleted %} mark as done {% else %} mark undone {% endif %}" disabled>
+                        </div> -->
+                        <div class="col-md-6">
+                            <label for="isCompleted">Completed:</label>
+                            {% if todo.isCompleted %}
+                                <i class="fas fa-check-circle text-primary"></i>
+                            {% else %}
+                                <i class="far fa-circle"></i>
+                            {% endif %}
                         </div>
-                    {% endfor %}
+                        
+    
+                        <div class="col-md-6">
+                            <label for="title">Title:</label>
+                            <input type="text" class="form-control" name="title" id="title" value="{{ todo.title }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="description">Description:</label>
+                            <input type="text" class="form-control" name="description" id="description"
+                                value="{{ todo.description }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="deadline">Deadline:</label>
+                            <input type="datetime-local" class="form-control" name="deadline" id="deadline-{{ todo.id }}"
+                                value="{% if todo.deadline %}{{ todo.deadline|date:'Y-m-d\TH:i' }}{% endif %}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="notification_time">Notification Time:</label>
+                            <input type="datetime-local" class="form-control" name="notification_time"
+                                id="notification_time-{{ todo.id }}"
+                                value="{% if todo.notification_time %}{{ todo.notification_time|date:'Y-m-d\TH:i' }}{% endif %}"
+                                readonly>
+                        </div>
+                        <div class="col-md-6 mt-2">
+                            <a href="{% url 'todos:update' todo.id %}" class="btn btn-outline-primary">Update</a>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            {% if not todo.isCompleted %}
+                            Remaining Time: <span id="remaining-time-{{ todo.id }}"></span>
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function () {
+                                    updateRemainingTime("{{ todo.id }}", "{{ todo.deadline|date:'Y-m-d\TH:i:s' }}");
+                                });
+                            </script>
+                            {% else %}
+                            Task Done
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{% url 'todos:delete' todo.id %}" title="Delete">
+                        <i class="far fa-trash-alt"></i>
+                    </a>
                 </div>
             </div>
-            <script>
-                function validateForm() {
-                    var deadlineInputString = document.getElementById('deadline').value;
-                    var notificationTimeInputString = document.getElementById('notification_time').value;
-                    console.log("deadlineInputString",deadlineInputString);
-                    console.log("notificationTimeInputString",notificationTimeInputString);
-        
-                    // Parse the date strings to create Date objects
-                    var deadlineInput = new Date(deadlineInputString).getTime();
-                    var notificationTimeInput = new Date(notificationTimeInputString).getTime();
-                    var now = new Date().getTime();
-                    console.log("cuurent time",now);
-                    // console.log("deadlineInput",deadlineInput);
-                    // console.log("notificationTimeInput",notificationTimeInput);
-        
-                    if (deadlineInput < now ) {
-                        alert('Deadline Time cannot be in the past.');
-                        return false;
-                    }
-        
-                    if ( notificationTimeInput <now ) {
-                        alert('notificationTime Time cannot be in the past.');
-                        return false;
-                    }
-        
-                    if (deadlineInput < notificationTimeInput  ) {
-                        alert('notificationTime Time cannot be greter than the past.');
-                        return false;
-                    }
-        
-                    return true;
-                }
-                </script>  
-        {% endif %}
+        </div>
+        {% endfor %}
     </div>
+    
+    {% endif %}
+</div>
+
+</div>
 {% endblock %}
